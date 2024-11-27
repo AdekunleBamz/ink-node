@@ -233,11 +233,22 @@ EOL
 manage_ink_node() {
     echo -e "${CYAN}Starting Ink Node...${NC}"
     cd "$HOME/InkNode/node"
-    if echo "y" | ./setup.sh && docker-compose up -d; then
+    
+
+    if ./setup.sh; then
+        echo -e "${GREEN}Setup completed successfully.${NC}"
+    else
+        echo -e "${RED}Failed to complete setup.${NC}"
+        return 1  # Прерываем выполнение, если setup не удался
+    fi
+    
+    if docker-compose up -d; then
         echo -e "${GREEN}Ink Node is running.${NC}"
     else
         echo -e "${RED}Failed to start Ink Node.${NC}"
+        return 1
     fi
+
 
     echo -e "${CYAN}Verifying Sync Status...${NC}"
     curl -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"optimism_syncStatus","params":[],"id":1}' http://localhost:9545 | jq
