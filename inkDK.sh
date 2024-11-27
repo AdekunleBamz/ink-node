@@ -306,6 +306,16 @@ backup_wallet() {
     cat ~/InkNode/node/var/secrets/jwt.txt
 }
 
+
+update_node() {
+  sudo docker-compose -f "$HOME/InkNode/node/docker-compose.yml" down
+  cd "$HOME/InkNode/node" || { echo "Failed to change directory."; exit 1; }
+  git pull origin || { echo "Failed to run git pull."; exit 1; }
+  ./setup.sh || { echo "Failed to execute setup.sh."; exit 1; }
+  sudo docker-compose -f "$HOME/InkNode/node/docker-compose.yml" up -d
+  echo "Update process completed successfully."
+}
+
 # ----------------------------
 # Main Menu Function
 # ----------------------------
@@ -323,7 +333,8 @@ main_menu() {
         echo "    6. Check Logs for node-op-geth ${ICON_LOGS}"
         echo "    7. Check Logs for node-op-node ${ICON_LOGS}"
         echo "    8. Backup Your Generated Wallet ${NODE}"
-        echo "    9. Exit ${ICON_EXIT}"
+        echo "    9. Update ${ICON_INSTALL}"
+        echo "    10. Exit ${ICON_EXIT}"
         show_separator
         read -p "Choose an option: " choice
 
@@ -360,7 +371,11 @@ main_menu() {
                 backup_wallet
                 read -p "Press Enter to continue..."
                 ;;
-            9)
+            9)  update_node
+                read -p "Press Enter to continue..."
+                ;;
+
+            10)
                 exit 0
                 ;;
             *)
